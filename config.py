@@ -1,7 +1,11 @@
 import os
+from dotenv import load_dotenv
 
-# Ambil konfigurasi dari environment variable Railway
-MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
-MYSQL_USER = os.getenv("MYSQL_USER", "root")
-MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
-MYSQL_DB = os.getenv("MYSQL_DB", "smart_weather")
+# Baca file .env kalau ada (berguna untuk local testing)
+load_dotenv()
+
+MYSQL_HOST = os.getenv("MYSQLHOST")
+MYSQL_USER = os.getenv("MYSQLUSER")
+MYSQL_PASSWORD = os.getenv("MYSQLPASSWORD")
+MYSQL_DB = os.getenv("MYSQLDATABASE")
+MYSQL_PORT = int(os.getenv("MYSQLPORT", 3306))
