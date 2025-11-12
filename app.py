@@ -76,7 +76,7 @@ def receive_data():
         mysql.connection.commit()
 
         cursor.close()
-        return jsonify({"status": "success", "message": "Data inserted and old data trimmed"})
+        return jsonify({"status": "success", "message": "Data inserted"})
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
