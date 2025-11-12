@@ -85,9 +85,7 @@ def receive_data():
 # ===================== API GET SEMUA DATA =====================
 @app.route('/api/weather_data', methods=['GET'])
 def get_all_weather_data():
-    """
-    Ambil semua data dari tabel weather_data
-    """
+
     try:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("SELECT * FROM weather_data ORDER BY id DESC")
@@ -102,9 +100,7 @@ def get_all_weather_data():
 # ===================== API GET 5 DATA TERAKHIR PER STATION =====================
 @app.route('/api/weather_data/5', methods=['GET'])
 def get_5_weather_data():
-    """
-    Ambil 5 data terbaru per station_id
-    """
+
     try:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("""
