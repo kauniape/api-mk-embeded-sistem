@@ -16,6 +16,7 @@ app.config['MYSQL_PORT'] = config.MYSQL_PORT
 
 mysql = MySQL(app)
 
+
 @app.route('/')
 def home():
     return jsonify({
@@ -28,6 +29,7 @@ def home():
         ],
     })
 
+
 # ============ API UNTUK POST ============
 @app.route('/api/weather_data', methods=['POST'])
 def receive_data():
@@ -39,7 +41,6 @@ def receive_data():
         rain_status = data.get('rain_status')
         wind_speed = data.get('wind_speed')
         light_intensity = data.get('light_intensity')
-
 
         if not all([station_id, temperature, humidity, rain_status, wind_speed, light_intensity]):
             return jsonify({"status": "error", "message": "Incomplete data"}), 400
@@ -58,17 +59,41 @@ def receive_data():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-# ============ API UNTUK GET ============
+# ============ API GET SEMUA DATA ============
 @app.route('/api/weather_data', methods=['GET'])
-def get_weather_data():
+def get_all_weather_data():
+    """Ambil semua data dari tabel weather_data"""
     try:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("SELECT * FROM weather_data")
+        cursor.execute("SELECT * FROM weather_data ORDER BY id DESC")
         result = cursor.fetchall()
         cursor.close()
 
         return jsonify(result)
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
+
+# ============ API GET 5 DATA TERAKHIR PER STATION ============
+@app.route('/api/weather_data/5', methods=['GET'])
+def get_5_weather_data():
+    """Ambil 5 data terbaru per station_id"""
+    try:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("""
+            SELECT wd.*
+            FROM weather_data wd
+            WHERE (
+                SELECT COUNT(*)
+                FROM weather_data w2
+                WHERE w2.station_id = wd.station_id AND w2.id > wd.id
+            ) < 5
+            ORDER BY wd.station_id, wd.id DESC;
+        """)
+        result = cursor.fetchall()
+        cursor.close()
+
+        return jsonify(result)
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
