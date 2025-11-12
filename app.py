@@ -119,6 +119,58 @@ def get_5_weather_data():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+# ===================== API PUT (UPDATE DATA) =====================
+@app.route('/api/weather_data/<int:data_id>', methods=['PUT'])
+def update_weather_data(data_id):
+    """
+    Endpoint untuk update data berdasarkan ID.
+    Contoh JSON:
+    {
+        "temperature": 29.5,
+        "humidity": 60,
+        "rain_status": "clear",
+        "wind_speed": 12,
+        "light_intensity": 450
+    }
+    """
+    try:
+        data = request.get_json()
+
+        # Pastikan data tidak kosong
+        if not data:
+            return jsonify({"status": "error", "message": "No data provided"}), 400
+
+        # Ambil nilai field yang ingin diupdate
+        temperature = data.get('temperature')
+        humidity = data.get('humidity')
+        rain_status = data.get('rain_status')
+        wind_speed = data.get('wind_speed')
+        light_intensity = data.get('light_intensity')
+
+        cursor = mysql.connection.cursor()
+
+        # Cek apakah data_id ada
+        cursor.execute("SELECT * FROM weather_data WHERE id = %s", (data_id,))
+        existing = cursor.fetchone()
+        if not existing:
+            cursor.close()
+            return jsonify({"status": "error", "message": "Data not found"}), 404
+
+        # Update nilai yang dikirim
+        cursor.execute("""
+            UPDATE weather_data
+            SET temperature = %s, humidity = %s, rain_status = %s,
+                wind_speed = %s, light_intensity = %s
+            WHERE id = %s
+        """, (temperature, humidity, rain_status, wind_speed, light_intensity, data_id))
+        mysql.connection.commit()
+
+        cursor.close()
+        return jsonify({"status": "success", "message": f"Data with id {data_id} updated successfully"})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 # ===================== MAIN APP =====================
